@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Raíz</string>
+    <string name="title_activity_main">Raíz</string>
+    <string name="package_name">cl.ipchile.impulsa.raiz</string>
+    <string name="custom_url_scheme">cl.ipchile.impulsa.raiz</string>
+</resources>
