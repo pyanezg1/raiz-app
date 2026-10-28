@@ -1210,13 +1210,15 @@ SCREENS.hostProfile=function(){
 
 /* --- Anfitrión sin parada asignada --- */
 SCREENS.hostPending=function(){
-  var pend = ME && ME.role==='anfitrion_pendiente';
+  var pend = ME && ME.role==='anfitrion_pendiente', adm = ME && ME.role==='admin';
   var html='<header class="top"><div><div class="eyebrow">Modo anfitrión</div><h1>'+(pend?'Solicitud en revisión':'Recibe visitas en tu lugar')+'</h1></div></header>';
   if(!ME){
     html+='<div class="pad"><div class="cardd" style="display:grid;gap:10px"><p class="small">Para recibir reservas necesitas una cuenta de anfitrión.</p><button class="btn brote" data-act="hostlogin">Entrar o crear cuenta</button></div></div>';
   } else if(pend){
     html+='<div class="pad"><div class="cardd" style="display:grid;gap:8px"><p class="small">La red revisa cada familia y emprendimiento antes de activar su panel.'+(ME.wants_stop?' Pediste representar a <b>'+esc(ME.wants_stop)+'</b>.':'')+'</p>'+
       '<p class="xs mute">Cuando te asignen tu parada, aquí verás tus reservas, tus ofertas y podrás proponer experiencias.</p><button class="btn-s" data-act="refreshme" style="justify-self:start">Revisar de nuevo</button></div></div>';
+  } else if(adm){
+    html+='<div class="pad"><div class="cardd" style="display:grid;gap:8px"><p class="small">Tu cuenta administra la red y no tiene una parada asignada.</p><p class="xs mute">Desde el Panel de la red activas a las familias anfitrionas y apruebas sus experiencias.</p></div></div>';
   } else {
     html+='<div class="pad"><form class="cardd" id="reqf" style="display:grid;gap:10px"><p class="small">Tu cuenta es de visitante. Pide a la red que te active como anfitrión.</p>'+
       '<div class="field"><label for="r-wants" style="color:var(--noche-txt)">¿Qué emprendimiento o parada representas?</label><input id="r-wants" maxlength="80" placeholder="Ej: Witral Quilaqueo"></div>'+
@@ -1368,6 +1370,7 @@ app.addEventListener('click',function(e){
 
 function start(){
   if(S.mode==='gps') startGps();
+  if(S.role==='anfitrion') stack=[{s:'hostToday'}];
   render(true);
   if(toastLater){ toast(toastLater); toastLater=null; }
 }
