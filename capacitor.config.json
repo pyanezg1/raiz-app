@@ -1,6 +1,6 @@
 {
-  "appId": "cl.ipchile.impulsa.raiz",
-  "appName": "Raíz",
+  "appId": "cl.raizdelterritorio.rutas",
+  "appName": "Raíz Rutas",
   "webDir": "www",
   "android": {
     "backgroundColor": "#4E6B3A"

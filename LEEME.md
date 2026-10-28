@@ -1,63 +1,49 @@
-# Raíz del Territorio · proyecto Android
+# Raíz Rutas
 
-App de comercio directo entre productores rurales y consumidores (pitch Semillero Cero, Mariana Ávila).
-Prototipo para el piloto: funciona sin conexión y guarda los datos en el teléfono. Los productores, productos y pedidos son de ejemplo y los pagos no se procesan.
+Es una guía territorial para el teléfono: el visitante recorre una ruta parada por parada y, al llegar a cada una, compra productos o reserva y paga experiencias que propone cada familia anfitriona.
 
-- **Nombre de la app:** Raíz
-- **ID del paquete:** `cl.ipchile.impulsa.raiz`
-- **Versión:** 0.1.0
-- **Tecnología:** Capacitor 8 (la app es una página web empaquetada como app Android nativa)
+- **App:** Raíz Rutas · paquete `cl.raizdelterritorio.rutas` · versión 0.2.0
+- **Tecnología:** Capacitor 8 (Android) + Supabase (servidor, base de datos y cuentas)
+- **Pagos:** en modo prueba. No se cobra dinero real.
 
-## Qué incluye
+## Cómo se genera el APK
 
-| Pantalla | Qué hace |
+Cada cambio que se sube a la rama `main` dispara el flujo **Generar APK** (pestaña *Actions*). Unos minutos después, el archivo `raiz-rutas.apk` queda en **Releases → "Raíz Rutas · última versión"**.
+
+El APK se firma con una llave de prueba fija (`android/app/debug.keystore`), así que cada versión nueva se instala encima de la anterior. Esa llave **no** sirve para Google Play. Para publicar hay que generar una llave propia y guardarla como secreto.
+
+## Configuración del servidor (una sola vez)
+
+1. En Supabase, abre **SQL Editor → New query**, pega el contenido de `supabase/01_esquema.sql` y pulsa **Run**.
+2. En otra consulta, pega `supabase/02_ruta_ejemplo.sql` y pulsa **Run**. Esto carga la ruta de ejemplo del Lago Budi.
+3. Para el piloto, en **Authentication → Sign In / Providers → Email**, desactiva **Confirm email**. El correo gratuito de Supabase envía muy pocos mensajes por hora, y sin un dominio propio el enlace de confirmación no lleva de vuelta a la app.
+4. Crea tu cuenta desde la app y luego conviértete en administrador de la red con esta consulta (cambia el correo):
+
+   ```sql
+   update public.profiles set role = 'admin'
+   where id = (select id from auth.users where email = 'tu-correo@ejemplo.cl');
+   ```
+
+Los dos archivos SQL se pueden volver a ejecutar sin borrar reservas.
+
+## Roles
+
+| Rol | Qué hace |
 |---|---|
-| Bienvenida | Elegir "Quiero comprar" o "Soy productor" |
-| 01 Descubrir | Búsqueda, filtros (verificados, cerca, cooperativas), productor destacado y productos disponibles hoy |
-| 02 Mapa regional | 9 productores alrededor de Puyehue, filtro por categoría, lista ordenada por distancia |
-| 03 Perfil del productor | Sellos (origen verificado, intercultural), trazabilidad y catálogo |
-| 04 Producto y origen | Reparto del precio a la vista: cuánto llega al productor y cuánto es comisión |
-| 05 Pedido y pago | Carrito, "comercio justo a la vista", medio de pago y confirmación |
-| 06 Panel del productor | Ventas y pedidos del mes, disponibilidad con un toque, avisos formativos, publicar y editar productos con foto, pedidos recibidos |
+| Visitante | Recorre la ruta, gana sellos, compra en el lugar, reserva y paga experiencias, cancela según la política de cada familia. |
+| Anfitrión | Se registra desde "Soy anfitrión" y espera a que la red lo active. Luego ve sus reservas, valida códigos, abre o cierra su parada y propone experiencias con su propio precio. |
+| Red (administrador) | Desde "Mi viaje → Panel de la red": activa anfitriones en su parada y aprueba o rechaza las experiencias nuevas. |
 
-Modelo de comisión usado: 8 % por venta, repartido mitad y mitad (4 % incluido en el precio que paga el consumidor y 4 % lo asume el productor), más $3.500 de envío regional por pedido.
+## Seguridad
 
----
+- La app usa solo la clave **publicable** de Supabase.
+- Las tablas tienen RLS activo y sin acceso directo. Todo pasa por funciones que revisan quién llama: un visitante ve solo sus reservas, y un anfitrión solo las de su parada.
+- La capacidad de cada horario se controla en el servidor, así que dos personas no pueden tomar el mismo último cupo.
+- Cada persona puede **eliminar su cuenta** desde la app (Google Play lo exige). Las reservas pagadas quedan sin datos personales.
 
-## Opción A · Generar el APK con GitHub (no hay que instalar nada)
+## Archivos
 
-1. Crea una cuenta en <https://github.com> si no tienes.
-2. Crea un repositorio nuevo (por ejemplo `raiz-app`), puede ser privado.
-3. Sube **todo el contenido de esta carpeta** (incluida la carpeta oculta `.github`).
-   - La forma más simple: en el repositorio vacío, "uploading an existing file" y arrastra las carpetas.
-   - Si la carpeta `.github` no se sube al arrastrar, créala a mano: *Add file → Create new file*, nombre `.github/workflows/apk.yml`, y pega el contenido del archivo `apk.yml`.
-4. Ve a la pestaña **Actions**. Se ejecuta solo el flujo "Generar APK" (tarda unos 5 minutos). Si no parte, entra a "Generar APK" y pulsa **Run workflow**.
-5. Cuando termine con ✓ verde, ve a **Releases → "Raíz · última versión"** y descarga `raiz.apk`. Desde el celular puedes abrir esa misma página y descargarlo directo.
-
-Cada vez que subas un cambio a la rama `main`, se genera un APK nuevo.
-
-## Opción B · Android Studio
-
-1. Instala [Node.js 22](https://nodejs.org) y [Android Studio](https://developer.android.com/studio).
-2. En esta carpeta: `npm install` y luego `npx cap sync android`.
-3. `npx cap open android` abre el proyecto en Android Studio.
-4. *Build → Build App Bundle(s) / APK(s) → Build APK(s)*. El archivo queda en `android/app/build/outputs/apk/debug/app-debug.apk`.
-
-## Instalar el APK en un teléfono Android
-
-1. Pasa `raiz.apk` al teléfono (descarga, WhatsApp, cable).
-2. Ábrelo. Android pedirá permitir "instalar apps desconocidas" para esa aplicación (Chrome, Archivos o WhatsApp): acéptalo.
-3. Instala y abre **Raíz**.
-
-El APK es de prueba ("debug"): sirve para el piloto y para mostrar en presentaciones. Para publicarlo en Google Play hay que generar una versión firmada (release) y crear una cuenta de desarrollador en Play Console.
-
-## Cambiar contenidos
-
-Toda la app está en `www/index.html` (HTML, estilos y código en un solo archivo). Los datos de productores y productos están al inicio del código, en `PRODUCERS` y `BASE_PRODUCTS`. Después de editar, ejecuta `npx cap sync android` (o simplemente sube el cambio a GitHub y se genera el APK nuevo).
-
-## Próximos pasos para un piloto real
-
-- Base de datos y cuentas de usuario (por ejemplo Firebase o Supabase) para que productores y consumidores vean la misma información.
-- Pasarela de pago (Webpay, Mercado Pago o Flow) con pago dividido al productor.
-- Flujo de verificación con INDAP y cooperativas ancla.
-- Mapa real con la ubicación de cada predio.
+- `www/index.html`: la app completa (pantallas, estilos y lógica).
+- `supabase/`: esquema del servidor y datos de ejemplo.
+- `android/`: proyecto nativo (permisos de ubicación, ícono, pantalla de inicio).
+- `.github/workflows/apk.yml`: compilación automática.

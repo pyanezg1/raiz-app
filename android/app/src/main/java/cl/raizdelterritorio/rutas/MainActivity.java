@@ -1,4 +1,4 @@
-package cl.ipchile.impulsa.raiz;
+package cl.raizdelterritorio.rutas;
 
 import com.getcapacitor.BridgeActivity;
 

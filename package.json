@@ -1,8 +1,8 @@
 {
-  "name": "raiz-del-territorio",
+  "name": "raiz-rutas",
   "version": "0.1.0",
   "private": true,
-  "description": "Raíz del Territorio — comercio directo entre productores rurales y consumidores",
+  "description": "Raíz Rutas — guía territorial: recorre la ruta y compra donde nace",
   "scripts": {
     "sync": "cap sync android",
     "apk": "cap sync android && cd android && ./gradlew assembleDebug"
@@ -10,7 +10,8 @@
   "dependencies": {
     "@capacitor/android": "8.5.2",
     "@capacitor/app": "8.1.1",
-    "@capacitor/core": "8.5.2"
+    "@capacitor/core": "8.5.2",
+    "@supabase/supabase-js": "2.117.2"
   },
   "devDependencies": {
     "@capacitor/cli": "8.5.2"
